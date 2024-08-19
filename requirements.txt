@@ -1,0 +1,20 @@
+# Dev environment
+pip
+black
+flake8
+python-dotenv==1.0.1
+isort==5.13.2
+
+# App
+Flask==3.0.3
+Flask-Admin==1.6.1
+Flask-Cors==4.0.1
+Flask-JWT-Extended==4.6.0
+Flask-Login==0.6.3
+Flask-Migrate==4.0.7
+Flask-SQLAlchemy==3.1.1
+gunicorn==23.0.0
+minio==7.2.7
+psycopg2-binary
+schedule==1.2.2
+SQLAlchemy==2.0.31
