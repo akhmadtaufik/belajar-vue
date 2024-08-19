@@ -66,5 +66,7 @@
   "npm-intellisense.importES6": true,
   "npm-intellisense.importQuotes": "'",
   "npm-intellisense.importLinebreak": "sameLine",
-  "npm-intellisense.scanDevDependencies": true
+  "npm-intellisense.scanDevDependencies": true,
+  "IDX.aI.enableInlineCompletion": true,
+  "IDX.aI.enableCodebaseIndexing": true
 }
