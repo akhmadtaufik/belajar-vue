@@ -50,61 +50,7 @@ import { ref } from 'vue'
 const showModal = ref(false)
 
 const toggleModal = () => {
-    console.log("Click")
-    showModal.value = !showModal.value
+  console.log('Click')
+  showModal.value = !showModal.value
 }
 </script>
-
-<style scoped>
-main {
-  margin-top: 10pt;
-  padding-left: 20%;
-  padding-right: 20%;
-}
-
-form {
-  background-color: #ebebeb;
-  padding: 20pt;
-  border-radius: 10pt;
-}
-
-.flex {
-  display: flex;
-  flex-direction: column;
-}
-
-.button{
-    margin-top:.5rem;
-   
-}
-
-button {
-  padding: 10pt;
-  background-color: blue;
-  color: white;
-  border: none;
-  border-radius: 5pt;
-  margin: 10pt;
-}
-
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  background-color: rgba(0, 0, 0, 0.7)
-}
-
-.input{
-  border: 1px solid black;
-  padding: 10pt;
-}
-
-.modal-container{
-  background-color: #ebebeb;
-  padding: 20pt;
-  margin-top: 20pt;
-  width: 60%;
-  margin-left: 20%;}
-</style>

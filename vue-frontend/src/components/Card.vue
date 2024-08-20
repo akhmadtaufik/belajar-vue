@@ -11,15 +11,3 @@
     </div>
   </div>
 </template>
-
-<style scoped>
-.card {
-  margin-top: 20pt;
-  border: 2px solid black;
-}
-
-.user {
-  margin-top: 10pt;
-  color: gray;
-}
-</style>
