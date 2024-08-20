@@ -8,7 +8,8 @@
   },
   "files.autoSave": "onFocusChange",
   "files.associations": {
-    "*.vue": "vue"
+    "*.vue": "vue",
+    "*.css": "tailwindcss"
   },
   "editor.formatOnSave": true,
   "editor.defaultFormatter": "esbenp.prettier-vscode",
@@ -68,5 +69,8 @@
   "npm-intellisense.importLinebreak": "sameLine",
   "npm-intellisense.scanDevDependencies": true,
   "IDX.aI.enableInlineCompletion": true,
-  "IDX.aI.enableCodebaseIndexing": true
+  "IDX.aI.enableCodebaseIndexing": true,
+  "editor.quickSuggestions": {
+    "strings": "on"
+  }
 }
