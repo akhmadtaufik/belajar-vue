@@ -1,29 +1,35 @@
 <template>
   <Navbar />
-  <main>
-    <h1>Home Page</h1>
+  <main class="flex flex-col justify-items-center items-center">
+    <h1 class="text-2xl">Home Page</h1>
     <Form>
-      <div class="flex">
-        <div class="flex">
+      <div class="flex flex-col w-full">
+        <div class="flex flex-col">
           <label for="tweet">Tweet</label>
-          <textarea rows="10" cols="10"></textarea>
+          <textarea
+            rows="5"
+            cols="10"
+            v-model="tweet"
+            class="border-2 rounded-md border-green-400"
+          ></textarea>
         </div>
-        <div class="button">
-          <button class="button">Submit</button>
-          <button @click="setIsOpen(true)">Upload Tweet</button>
+        <div class="flex gap-5 mt-5">
+          <button @click="submitData" class="bg-green-400 text-white p-2 rounded-md">Submit</button>
+          <button @click="setIsOpen(true)" class="border-black border-2 p-2 rounded-md">
+            Upload File
+          </button>
         </div>
       </div>
     </Form>
 
-    <Card />
-    <Card />
-    <Card />
-    <Card />
-    <Card />
+    <section class="w-1/2">
+      <p class="text-2xl font-semibold mt-4">Tweets</p>
+      <Card v-for="item in tweets" :key="item.user" :user="item.user" :tweet="item.tweet" />
+    </section>
 
     <Teleport to="body">
       <Dialog :open="isOpen" @close="setIsOpen">
-        <div class="fixed inset-0 bg-black/30" aria-hidden="true">
+        <div class="fixed inset-0 bg-black/30 rounded-md" aria-hidden="true">
           <div class="fixed inset-0 flex w-screen items-center justify-center p-4">
             <Form>
               <DialogPanel>
@@ -71,6 +77,31 @@ import InputFile from '@/components/InputFile.vue'
 import { ref } from 'vue'
 
 import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
+
+const tweet = ref('')
+
+const tweets = [
+  {
+    user: 'user_1',
+    tweet: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Dicta, praesentium?'
+  },
+  {
+    user: 'user_2',
+    tweet: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Dicta, praesentium?'
+  },
+  {
+    user: 'user_3',
+    tweet: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Dicta, praesentium?'
+  },
+  {
+    user: 'user_4',
+    tweet: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Dicta, praesentium?'
+  },
+  {
+    user: 'user_5',
+    tweet: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Dicta, praesentium?'
+  }
+]
 
 const isOpen = ref(false)
 
