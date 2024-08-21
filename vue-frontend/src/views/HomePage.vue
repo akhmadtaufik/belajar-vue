@@ -10,7 +10,7 @@
         </div>
         <div class="button">
           <button class="button">Submit</button>
-          <button @click="showModal">Show Modal</button>
+          <button @click="setIsOpen(true)">Upload Tweet</button>
         </div>
       </div>
     </Form>
@@ -21,22 +21,44 @@
     <Card />
     <Card />
 
-    <div class="modal" v-if="showModal">
-      <div class="modal-container">
-        <div class="flex">
-          <label for="upload_foto">Upload Foto</label>
-          <input type="file" id="foto" class="foto" />
+    <Teleport to="body">
+      <Dialog :open="isOpen" @close="setIsOpen">
+        <div class="fixed inset-0 bg-black/30" aria-hidden="true">
+          <div class="fixed inset-0 flex w-screen items-center justify-center p-4">
+            <Form>
+              <DialogPanel>
+                <DialogTitle>
+                  <h1 class="text-xl">Upload Tweet</h1>
+                </DialogTitle>
+                <div class="flex flex-col">
+                  <div class="flex flex-col">
+                    <inputFile id="uploadFile" inputName="Upload File" v-model="uploadedFile" />
+                  </div>
+                  <div class="flex flex-col">
+                    <label for="tweet">Tweet</label>
+                    <textarea
+                      rows="5"
+                      cols="50"
+                      id="tweet-modal"
+                      v-model="tweet"
+                      class="border-2 rounded-md border-green-400"
+                    ></textarea>
+                  </div>
+                  <div class="flex gap-5 mt-5">
+                    <button @click="submitData" class="bg-green-400 text-white p-2 rounded-md">
+                      Submit
+                    </button>
+                    <button @click="setIsOpen(false)" class="border-black border-2 p-2 rounded-md">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </DialogPanel>
+            </Form>
+          </div>
         </div>
-        <div class="flex">
-          <label for="tweet_modal">Tweet</label>
-          <textarea type="text" cols="10" id="tweet"></textarea>
-        </div>
-        <div class="button">
-          <button>Submit</button>
-          <button @click="toggleModal">Cancel</button>
-        </div>
-      </div>
-    </div>
+      </Dialog>
+    </Teleport>
   </main>
 </template>
 
@@ -44,13 +66,17 @@
 import Navbar from '@/components/Navbar.vue'
 import Form from '@/components/Form.vue'
 import Card from '@/components/Card.vue'
+import InputFile from '@/components/InputFile.vue'
 
 import { ref } from 'vue'
 
-const showModal = ref(false)
+import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
 
-const toggleModal = () => {
-  console.log('Click')
-  showModal.value = !showModal.value
+const isOpen = ref(false)
+
+const uploadedFile = ref(null)
+
+function setIsOpen(value) {
+  isOpen.value = value
 }
 </script>
