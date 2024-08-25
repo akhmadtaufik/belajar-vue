@@ -5,17 +5,11 @@
     <Form>
       <div class="flex flex-col w-full">
         <div class="flex flex-col">
-          <label for="tweet">Tweet</label>
-          <textarea
-            rows="5"
-            cols="10"
-            v-model="tweet"
-            class="border-2 rounded-md border-green-400"
-          ></textarea>
+          <TextAreaLabel id="textArea-input" label="tweet" v-model="tweet" rows="5" />
         </div>
         <div class="flex gap-5 mt-5">
           <button @click="submitData" class="bg-green-400 text-white p-2 rounded-md">Submit</button>
-          <button @click="setIsOpen(true)" class="border-black border-2 p-2 rounded-md">
+          <button @click="toggleModal(true)" class="border-black border-2 p-2 rounded-md">
             Upload File
           </button>
         </div>
@@ -28,42 +22,31 @@
     </section>
 
     <Teleport to="body">
-      <Dialog :open="isOpen" @close="setIsOpen">
-        <div class="fixed inset-0 bg-black/30 rounded-md" aria-hidden="true">
-          <div class="fixed inset-0 flex w-screen items-center justify-center p-4">
-            <Form>
-              <DialogPanel>
-                <DialogTitle>
-                  <h1 class="text-xl">Upload Tweet</h1>
-                </DialogTitle>
-                <div class="flex flex-col">
-                  <div class="flex flex-col">
-                    <inputFile id="uploadFile" inputName="Upload File" v-model="uploadedFile" />
-                  </div>
-                  <div class="flex flex-col">
-                    <label for="tweet">Tweet</label>
-                    <textarea
-                      rows="5"
-                      cols="50"
-                      id="tweet-modal"
-                      v-model="tweet"
-                      class="border-2 rounded-md border-green-400"
-                    ></textarea>
-                  </div>
-                  <div class="flex gap-5 mt-5">
-                    <button @click="submitData" class="bg-green-400 text-white p-2 rounded-md">
-                      Submit
-                    </button>
-                    <button @click="setIsOpen(false)" class="border-black border-2 p-2 rounded-md">
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              </DialogPanel>
-            </Form>
-          </div>
-        </div>
-      </Dialog>
+      <ModalUpload @toggle-modal="toggleModal" :show-modal="showModal">
+        <Form>
+          <DialogPanel>
+            <DialogTitle>
+              <h1 class="text-xl">Upload Tweet</h1>
+            </DialogTitle>
+            <div class="flex flex-col">
+              <div class="flex flex-col">
+                <inputFile id="uploadFile" inputName="Upload File" v-model="uploadedFile" />
+              </div>
+              <div class="flex flex-col">
+                <TextAreaLabel id="textArea-input" label="tweet" v-model="tweet" rows="5" />
+              </div>
+              <div class="flex gap-5 mt-5">
+                <button @click="submitData" class="bg-green-400 text-white p-2 rounded-md">
+                  Submit
+                </button>
+                <button @click="toggleModal(false)" class="border-black border-2 p-2 rounded-md">
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </DialogPanel>
+        </Form>
+      </ModalUpload>
     </Teleport>
   </main>
 </template>
@@ -73,10 +56,12 @@ import Navbar from '@/components/Navbar.vue'
 import Form from '@/components/Form.vue'
 import Card from '@/components/Card.vue'
 import InputFile from '@/components/InputFile.vue'
+import TextAreaLabel from '@/components/TextAreaLabel.vue'
+import ModalUpload from '@/components/ModalUpload.vue'
 
 import { ref } from 'vue'
 
-import { Dialog, DialogPanel, DialogTitle } from '@headlessui/vue'
+import { DialogPanel, DialogTitle } from '@headlessui/vue'
 
 const tweet = ref('')
 
@@ -103,11 +88,11 @@ const tweets = [
   }
 ]
 
-const isOpen = ref(false)
+const showModal = ref(false)
 
 const uploadedFile = ref(null)
 
-function setIsOpen(value) {
-  isOpen.value = value
+function toggleModal(value) {
+  showModal.value = value
 }
 </script>
