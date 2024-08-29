@@ -1,5 +1,4 @@
 <template>
-  <Navbar />
   <main class="flex flex-col justify-items-center items-center">
     <h1 class="text-2xl">Home Page</h1>
     <Form>
@@ -52,7 +51,6 @@
 </template>
 
 <script setup>
-import Navbar from '@/components/Navbar.vue'
 import Form from '@/components/Form.vue'
 import Card from '@/components/Card.vue'
 import InputFile from '@/components/InputFile.vue'
