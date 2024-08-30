@@ -3,6 +3,12 @@ import time
 from datetime import timedelta
 
 import schedule
+from flask import Flask
+
+# import flask admin
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
+from flask_login import current_user
 
 # import custom model view
 from app.admin.CustomModelView import AdminModelView, CustomModelView
@@ -18,12 +24,6 @@ from app.scheduler.count_tweet import total_tweet
 from app.tweet import tweetBp
 from app.user import userBp
 from config import Config
-from flask import Flask
-
-# import flask admin
-from flask_admin import Admin
-from flask_admin.contrib.sqla import ModelView
-from flask_login import current_user
 
 
 def create_app(config_class=Config):

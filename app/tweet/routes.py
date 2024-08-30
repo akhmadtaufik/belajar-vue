@@ -1,14 +1,21 @@
 import os
 from datetime import datetime, timedelta
 
+from flask import (
+    jsonify,
+    make_response,
+    request,
+    send_file,
+    send_from_directory,
+)
+from flask_jwt_extended import get_jwt_identity, jwt_required
+from minio import Minio
+from werkzeug.utils import secure_filename
+
 from app.extensions import db
 from app.models.tweet import Tweets
 from app.models.user import Users
 from app.tweet import tweetBp
-from flask import jsonify, make_response, request, send_file, send_from_directory
-from flask_jwt_extended import get_jwt_identity, jwt_required
-from minio import Minio
-from werkzeug.utils import secure_filename
 
 UPLOAD_FILE_LOCATION = "./static/uploaded/"
 ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png"}
@@ -17,7 +24,10 @@ BUCKET_NAME = "imagebucket"
 
 
 client = Minio(
-    "127.0.0.1:9000", access_key="nulltribe", secret_key="Rnpl1105", secure=False
+    "127.0.0.1:9000",
+    access_key="nulltribe",
+    secret_key="Rnpl1105",
+    secure=False,
 )
 
 
@@ -95,7 +105,9 @@ def post_tweet():
 
             db.session.add(new_content)
             db.session.commit()
-            response = make_response(jsonify(data=new_content.serialize()), 200)
+            response = make_response(
+                jsonify(data=new_content.serialize()), 200
+            )
 
             return response
 

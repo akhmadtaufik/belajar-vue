@@ -1,5 +1,4 @@
 <template>
-  <Navbar />
   <main class="flex flex-col justify-items-center items-center">
     <h1 class="text-2xl">Home Page</h1>
     <Form>
@@ -52,12 +51,12 @@
 </template>
 
 <script setup>
-import Navbar from '@/components/Navbar.vue'
 import Form from '@/components/Form.vue'
 import Card from '@/components/Card.vue'
 import InputFile from '@/components/InputFile.vue'
 import TextAreaLabel from '@/components/TextAreaLabel.vue'
 import ModalUpload from '@/components/ModalUpload.vue'
+import { useTweet } from '@/store/useFetchTweet'
 
 import { ref } from 'vue'
 
@@ -65,28 +64,7 @@ import { DialogPanel, DialogTitle } from '@headlessui/vue'
 
 const tweet = ref('')
 
-const tweets = [
-  {
-    user: 'user_1',
-    tweet: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Dicta, praesentium?'
-  },
-  {
-    user: 'user_2',
-    tweet: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Dicta, praesentium?'
-  },
-  {
-    user: 'user_3',
-    tweet: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Dicta, praesentium?'
-  },
-  {
-    user: 'user_4',
-    tweet: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Dicta, praesentium?'
-  },
-  {
-    user: 'user_5',
-    tweet: 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Dicta, praesentium?'
-  }
-]
+const { tweets } = useTweet()
 
 const showModal = ref(false)
 
