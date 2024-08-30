@@ -7,6 +7,7 @@
         <input
           type="text"
           class="border-b-4 border-green-600 h-10 focus:outline-none focus:border-green-200"
+          v-model="formData.username"
         />
       </div>
       <div class="flex flex-col">
@@ -14,9 +15,14 @@
         <input
           type="password"
           class="border-b-4 border-green-600 h-10 focus:outline-none focus:border-green-200"
+          v-model="formData.password"
         />
       </div>
-      <button type="submit" class="bg-green-400 p-2 rounded-md text-white w-full mt-5">
+      <button
+        type="submit"
+        class="bg-green-400 p-2 rounded-md text-white w-full mt-5"
+        @click="handleLogin"
+      >
         Submit
       </button>
       <RouterLink to="/register" class="text-sm hover:text-green-400">Sign Up</RouterLink>
@@ -26,5 +32,24 @@
 
 <script setup>
 import Form from '@/components/Form.vue'
-import { RouterLink } from 'vue-router'
+import { reactive } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
+import { useAuth } from '@/store/useAuth'
+
+const { tryLogin } = useAuth()
+const router = useRouter()
+
+const formData = reactive({
+  username: '',
+  password: ''
+})
+
+const handleLogin = async () => {
+  const result = await tryLogin(import.meta.env.VITE_FLASK_URL + '/api/auth/login', formData)
+  if (result.success) {
+    router.push('/')
+  } else {
+    console.error('Login failed:', result.error)
+  }
+}
 </script>

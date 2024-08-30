@@ -8,6 +8,7 @@
           type="text"
           class="border-b-4 border-green-600 h-10 focus:outline-none focus:border-green-200"
           name="username"
+          v-model="formData.username"
         />
       </div>
       <div class="flex flex-col">
@@ -16,6 +17,7 @@
           type="email"
           class="border-b-4 border-green-600 h-10 focus:outline-none focus:border-green-200"
           name="email"
+          v-model="formData.email"
         />
       </div>
       <div class="flex flex-col">
@@ -24,6 +26,7 @@
           type="password"
           class="border-b-4 border-green-600 h-10 focus:outline-none focus:border-green-200"
           name="password"
+          v-model="formData.password"
         />
       </div>
       <div class="flex flex-col">
@@ -32,6 +35,7 @@
           type="password"
           class="border-b-4 border-green-600 h-10 focus:outline-none focus:border-green-200"
           name="c_password"
+          v-model="formData.confirm_password"
         />
       </div>
       <div class="flex flex-col">
@@ -44,13 +48,18 @@
               :key="role.id"
               :value="role"
               class="p-2 hover:bg-gray-200"
+              v-model="formData.role"
             >
               {{ role.role }}
             </ListboxOption>
           </ListboxOptions>
         </Listbox>
       </div>
-      <button type="submit" class="bg-green-400 p-2 rounded-md text-white w-full mt-5">
+      <button
+        type="submit"
+        class="bg-green-400 p-2 rounded-md text-white w-full mt-5"
+        @click="handleRegister"
+      >
         Submit
       </button>
       <RouterLink to="/login" class="text-sm hover:text-green-400">Back To Login</RouterLink>
@@ -59,10 +68,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import Form from '@/components/Form.vue'
-import { RouterLink } from 'vue-router'
+import { ref, reactive } from 'vue'
+import { RouterLink, useRouter } from 'vue-router'
 import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/vue'
+import { useAuth } from '@/store/useAuth'
+
+const { tryRegister } = useAuth()
 
 const roles = [
   { id: 1, role: 'admin' },
@@ -70,4 +82,23 @@ const roles = [
 ]
 
 const selectedRole = ref(roles[0])
+
+const router = useRouter()
+
+const formData = reactive({
+  username: '',
+  email: '',
+  password: '',
+  confirm_password: '',
+  role: selectedRole.value.role
+})
+
+const handleRegister = async () => {
+  const result = await tryRegister(import.meta.env.VITE_FLASK_URL + '/api/auth/register', formData)
+  if (result.success) {
+    router.push('/login')
+  } else {
+    console.error('Registration Failed: ', result.error)
+  }
+}
 </script>
