@@ -17,7 +17,17 @@
 
     <section class="w-1/2">
       <p class="text-2xl font-semibold mt-4">Tweets</p>
-      <Card v-for="item in tweets" :key="item.user" :user="item.user" :tweet="item.tweet" />
+      <div v-if="loading">Loading tweets...</div>
+      <div v-else-if="error">Error: {{ error }}</div>
+      <div v-else>
+        <Card
+          v-for="item in tweetStore.tweets"
+          :key="item.id"
+          :user="item.user_id"
+          :tweet="item.content"
+          :image="item.image_path"
+        />
+      </div>
     </section>
 
     <Teleport to="body">
@@ -58,19 +68,27 @@ import TextAreaLabel from '@/components/TextAreaLabel.vue'
 import ModalUpload from '@/components/ModalUpload.vue'
 import { useTweet } from '@/store/useFetchTweet'
 
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 
 import { DialogPanel, DialogTitle } from '@headlessui/vue'
 
 const tweet = ref('')
-
-const { tweets } = useTweet()
+const tweetStore = useTweet()
+const { loading, error, fetchTweets } = tweetStore
 
 const showModal = ref(false)
-
 const uploadedFile = ref(null)
 
 function toggleModal(value) {
   showModal.value = value
 }
+
+onMounted(async () => {
+  console.log('HomePage mounted, fetching tweets...')
+  try {
+    await fetchTweets(import.meta.env.VITE_FLASK_URL + '/api/tweets')
+  } catch (e) {
+    console.error('Error in HomePage onMounted:', e)
+  }
+})
 </script>
