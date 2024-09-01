@@ -1,3 +1,4 @@
+import logging
 import os
 from datetime import datetime, timedelta
 
@@ -29,6 +30,11 @@ client = Minio(
     secret_key="Rnpl1105",
     secure=False,
 )
+try:
+    buckets = client.list_buckets()
+    print("Connected to MinIO successfully")
+except Exception as e:
+    print(f"Failed to connect to MinIO: {e}")
 
 
 def allowed_file(filename):
@@ -70,15 +76,20 @@ def get_tweet():
 @tweetBp.route("", methods=["POST"], strict_slashes=False)
 @jwt_required(locations=["headers"])
 def post_tweet():
-
-    # Make 'asiatrip' bucket if not exist.
     found = client.bucket_exists(BUCKET_NAME)
     if not found:
         client.make_bucket(BUCKET_NAME)
         print(f"Bucket '{BUCKET_NAME}' created successfully.")
     else:
         print(f"Bucket '{BUCKET_NAME}' already exists")
+        try:
+            client.list_buckets()
+            print("Connected to MinIO successfully")
+        except Exception as e:
+            print(f"Failed to connect to MinIO: {e}")
 
+    logging.info(f"Received data: {request.json}")
+    logging.info(f"Files: {request.files}")
     # cek apakah terdapat file didalam post
     if "file" in request.files:
 
