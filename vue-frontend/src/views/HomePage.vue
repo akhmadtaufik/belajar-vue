@@ -4,12 +4,12 @@
     <Form @submit.prevent="submitData">
       <div class="flex flex-col w-full">
         <div class="flex flex-col">
-          <TextAreaLabel id="textArea-input" label="tweet" v-model="tweet" rows="5" />
+          <TextAreaLabel id="textArea-input" label="Tweet" v-model="tweet" rows="5" />
         </div>
         <div class="flex gap-5 mt-5">
           <button
             type="submit"
-            :disabled="postTweetStore.loading"
+            :disabled="postTweetStore.loading || !tweet.trim()"
             class="bg-green-400 text-white p-2 rounded-md"
           >
             {{ postTweetStore.loading ? 'Posting...' : 'Submit' }}
@@ -102,6 +102,13 @@ function toggleModal(value) {
 async function submitData(withFile = false) {
   const url = `${import.meta.env.VITE_FLASK_URL}/api/tweets`
   let result
+
+  if (!tweet.value || !tweet.value.trim()) {
+    console.error('Tweet content is empty')
+    return
+  }
+
+  console.log('Submitting tweet:', tweet.value) // Debug log
 
   if (withFile && uploadedFile.value) {
     result = await postTweetStore.tryUpload(url, tweet.value, uploadedFile.value)
