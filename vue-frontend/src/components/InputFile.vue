@@ -2,7 +2,7 @@
   <div class="items-center">
     <label class="bg-green-500 hover:bg-green-700 text-white p-1 px-4 rounded cursor-pointer">
       <span>{{ inputName }}</span>
-      <input :id="id" type="file" class="hidden" @change="handleFileChange" :value="modelValue" />
+      <input :id="id" type="file" class="hidden" @change="handleFileChange" />
     </label>
     <span v-if="selectedFile">
       {{ selectedFile.name }}
@@ -11,14 +11,37 @@
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits } from 'vue'
+import { ref, defineProps, defineEmits, watch } from 'vue'
 
-const { inputName, id } = defineProps(['inputName', 'id'])
-const emits = defineEmits(['update:modelValue'])
+const props = defineProps({
+  inputName: {
+    type: String,
+    required: true
+  },
+  id: {
+    type: String,
+    required: true
+  },
+  modelValue: {
+    type: [File, null],
+    default: null
+  }
+})
 
-const selectedFile = ref('')
+const emit = defineEmits(['update:modelValue'])
+
+const selectedFile = ref(props.modelValue)
+
 const handleFileChange = (event) => {
-  selectedFile.value = event.target.file[0]
-  emits('update:modelValue', selectedFile.value)
+  const file = event.target.files ? event.target.files[0] : null
+  selectedFile.value = file
+  emit('update:modelValue', file)
 }
+
+watch(
+  () => props.modelValue,
+  (newValue) => {
+    selectedFile.value = newValue
+  }
+)
 </script>
