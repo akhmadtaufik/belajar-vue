@@ -80,6 +80,7 @@ import { useTweet } from '@/store/useFetchTweet'
 import { usePostTweet } from '@/store/usePostTweet'
 
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 import { DialogPanel, DialogTitle } from '@headlessui/vue'
 
@@ -90,6 +91,7 @@ const { fetchTweets } = tweetStore
 
 const showModal = ref(false)
 const uploadedFile = ref(null)
+const router = useRouter()
 
 function toggleModal(value) {
   showModal.value = value
@@ -108,30 +110,43 @@ async function submitData(withFile = false) {
     return
   }
 
-  console.log('Submitting tweet:', tweet.value) // Debug log
+  // console.log('Submitting tweet:', tweet.value)
 
-  if (withFile && uploadedFile.value) {
-    result = await postTweetStore.tryUpload(url, tweet.value, uploadedFile.value)
-  } else {
-    result = await postTweetStore.tryPosting(url, tweet.value)
-  }
-
-  if (result.success) {
-    tweet.value = ''
-    uploadedFile.value = null
-    if (withFile) {
-      toggleModal(false)
+  try {
+    if (withFile && uploadedFile.value) {
+      result = await postTweetStore.tryUpload(url, tweet.value, uploadedFile.value)
+    } else {
+      result = await postTweetStore.tryPosting(url, tweet.value)
     }
-    await fetchTweets()
-  } else {
-    console.error('Failed to post tweet:', result.error)
+
+    if (result.success) {
+      tweet.value = ''
+      uploadedFile.value = null
+      if (withFile) {
+        toggleModal(false)
+      }
+      await fetchTweets(`${import.meta.env.VITE_FLASK_URL}/api/tweets`)
+    } else {
+      console.error('Failed to post tweet:', result.error)
+      if (result.error === 'Invalid or missing JWT token') {
+        router.push('/login')
+      }
+    }
+  } catch (e) {
+    console.error('Unexpected error:', e)
   }
 }
 
 onMounted(async () => {
   console.log('HomePage mounted, fetching tweets...')
   try {
-    await fetchTweets(import.meta.env.VITE_FLASK_URL + '/api/tweets')
+    const result = await fetchTweets(`${import.meta.env.VITE_FLASK_URL}/api/tweets`)
+    if (!result.success) {
+      console.error('Error fetching tweets:', result.error)
+      if (result.error === 'Invalid or missing JWT token') {
+        router.push('/login')
+      }
+    }
   } catch (e) {
     console.error('Error in HomePage onMounted:', e)
   }
