@@ -90,9 +90,8 @@ def post_tweet():
 
     logging.info(f"Received request: {request}")
     logging.info(f"Request headers: {request.headers}")
-    logging.info(f"Request data: {request.get_data()}")
     logging.info(f"Request form: {request.form}")
-    logging.info(f"Request json: {request.json}")
+    logging.info(f"Request files: {request.files}")
 
     try:
         user_id = get_jwt_identity()
@@ -101,19 +100,23 @@ def post_tweet():
         logging.error(f"Error getting JWT identity: {e}")
         return jsonify({"error": "Invalid or missing JWT token"}), 401
 
-    if "file" in request.files:
-        file = request.files["file"]
-        if file.filename == "":
-            return jsonify({"error": "No File Selected"}), 422
+    content_type = request.content_type or ""
+    logging.info(f"Content-Type: {content_type}")
 
-    # Handle file upload case
-    if "file" in request.files:
+    if content_type.startswith("multipart/form-data"):
+        if "file" not in request.files:
+            return jsonify({"error": "No file part"}), 400
         file = request.files["file"]
-        if file.filename == "":
-            return jsonify({"error": "No File Selected"}), 422
+        content = request.form.get("content")
 
+        logging.info(f"File: {file}")
+        logging.info(f"Content: {content}")
+
+        if file.filename == "":
+            return jsonify({"error": "No selected file"}), 400
+        if not content or content.strip() == "":
+            return jsonify({"error": "Tweet content cannot be empty"}), 400
         if file and allowed_file(file.filename):
-            content = request.form.get("content")
             image_size = os.fstat(file.fileno()).st_size
             image_name = secure_filename(file.filename)
             client.put_object(BUCKET_NAME, image_name, file, image_size)
@@ -126,29 +129,22 @@ def post_tweet():
                 image_name=image_name,
                 image_path=image_path,
             )
-
             db.session.add(new_content)
             db.session.commit()
             return jsonify(data=new_content.serialize()), 200
-
+    elif content_type.startswith("application/json"):
+        data = request.get_json()
+        if not data or "content" not in data:
+            return jsonify({"error": "Invalid JSON data"}), 400
+        content = data["content"]
     else:
-        if request.is_json:
-            data = request.get_json()
-            content = data.get("content")
-        else:
-            content = request.form.get("content")
-
-    logging.info(f"Extracted content: {content}")
+        return (
+            jsonify({"error": f"Unsupported media type: {content_type}"}),
+            415,
+        )
 
     if not content or content.strip() == "":
-        return (
-            jsonify(
-                {
-                    "error": "Invalid data: content is required and cannot be empty"
-                }
-            ),
-            422,
-        )
+        return jsonify({"error": "Tweet content cannot be empty"}), 400
 
     try:
         tweet = Tweets(user_id=user_id, content=content)
@@ -159,8 +155,6 @@ def post_tweet():
         logging.error(f"Error saving tweet to database: {e}")
         db.session.rollback()
         return jsonify({"error": f"Failed to save tweet: {str(e)}"}), 500
-
-    return jsonify({"error": "Invalid request"}), 400
 
 
 def serve_image(filename):
