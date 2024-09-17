@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import axios from 'axios'
+import axiosInstance from '@/service/axiosInstance'
 
 export const useTweet = defineStore('tweets', () => {
   const tweets = ref([])
@@ -8,16 +8,19 @@ export const useTweet = defineStore('tweets', () => {
   const loading = ref(false)
   const error = ref(null)
 
-  const accessToken = ref(localStorage.getItem('access_token') || null)
-
   const fetchTweets = async (url) => {
     loading.value = true
+    error.value = null
+
+    if (!url || typeof url !== 'string') {
+      error.value = 'Invalid URL provided'
+      console.error('Error fetching tweets: Invalid URL', url)
+      loading.value = false
+      return { success: false, error: error.value }
+    }
+
     try {
-      const response = await axios.get(url, {
-        headers: {
-          Authorization: `Bearer ${accessToken.value}`
-        }
-      })
+      const response = await axiosInstance.get(url)
       status.value = response.status
       tweets.value = response.data.data
       loading.value = false
@@ -26,8 +29,13 @@ export const useTweet = defineStore('tweets', () => {
         data: response.data
       }
     } catch (e) {
-      error.value = e.response?.data?.message || e.message
-      console.error('Error fetching tweets:', e)
+      if (e.isAxiosError) {
+        error.value = e.response?.data?.message || e.message
+        console.error('Axios error fetching tweets:', e.message, e.response?.data)
+      } else {
+        error.value = 'An unexpected error occurred'
+        console.error('Unexpected error fetching tweets:', e)
+      }
       return { success: false, error: error.value }
     } finally {
       loading.value = false

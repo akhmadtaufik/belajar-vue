@@ -88,20 +88,36 @@ def post_tweet():
         except Exception as e:
             print(f"Failed to connect to MinIO: {e}")
 
-    logging.info(f"Received data: {request.json}")
-    logging.info(f"Files: {request.files}")
-    # cek apakah terdapat file didalam post
-    if "file" in request.files:
+    logging.info(f"Received request: {request}")
+    logging.info(f"Request headers: {request.headers}")
+    logging.info(f"Request form: {request.form}")
+    logging.info(f"Request files: {request.files}")
 
+    try:
+        user_id = get_jwt_identity()
+        logging.info(f"User ID from JWT: {user_id}")
+    except Exception as e:
+        logging.error(f"Error getting JWT identity: {e}")
+        return jsonify({"error": "Invalid or missing JWT token"}), 401
+
+    content_type = request.content_type or ""
+    logging.info(f"Content-Type: {content_type}")
+
+    if content_type.startswith("multipart/form-data"):
+        if "file" not in request.files:
+            return jsonify({"error": "No file part"}), 400
         file = request.files["file"]
-        if file.filename == "":
-            return jsonify({"error": "No File Selected"}), 422
+        content = request.form.get("content")
 
+        logging.info(f"File: {file}")
+        logging.info(f"Content: {content}")
+
+        if file.filename == "":
+            return jsonify({"error": "No selected file"}), 400
+        if not content or content.strip() == "":
+            return jsonify({"error": "Tweet content cannot be empty"}), 400
         if file and allowed_file(file.filename):
-            content = request.form.get("content")
-            user_id = get_jwt_identity()
             image_size = os.fstat(file.fileno()).st_size
-            # created_at = datetime.now()
             image_name = secure_filename(file.filename)
             client.put_object(BUCKET_NAME, image_name, file, image_size)
             image_path = client.presigned_get_object(
@@ -113,33 +129,32 @@ def post_tweet():
                 image_name=image_name,
                 image_path=image_path,
             )
-
             db.session.add(new_content)
             db.session.commit()
-            response = make_response(
-                jsonify(data=new_content.serialize()), 200
-            )
+            return jsonify(data=new_content.serialize()), 200
+    elif content_type.startswith("application/json"):
+        data = request.get_json()
+        if not data or "content" not in data:
+            return jsonify({"error": "Invalid JSON data"}), 400
+        content = data["content"]
+    else:
+        return (
+            jsonify({"error": f"Unsupported media type: {content_type}"}),
+            415,
+        )
 
-            return response
+    if not content or content.strip() == "":
+        return jsonify({"error": "Tweet content cannot be empty"}), 400
 
-    data = request.get_json()
-    content = data.get("content", None)
-
-    if not content:
-        return jsonify({"error": "Invalid data"}), 422
-
-    user_id = get_jwt_identity()
-
-    tweet = Tweets(user_id=user_id, content=content)
-    db.session.add(tweet)
-    db.session.commit()
-
-    # make response
-    response = make_response(jsonify(data=tweet.serialize()), 200)
-    # konfigurasi CORS dari respponse
-    # response.headers['Access-Control-Allow-Origin'] = '*'
-    # response.headers['Content_Type'] = 'application/json'
-    return response
+    try:
+        tweet = Tweets(user_id=user_id, content=content)
+        db.session.add(tweet)
+        db.session.commit()
+        return jsonify(data=tweet.serialize()), 200
+    except Exception as e:
+        logging.error(f"Error saving tweet to database: {e}")
+        db.session.rollback()
+        return jsonify({"error": f"Failed to save tweet: {str(e)}"}), 500
 
 
 def serve_image(filename):
