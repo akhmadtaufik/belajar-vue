@@ -105,7 +105,7 @@ async function submitData(withFile = false) {
   const url = `${import.meta.env.VITE_FLASK_URL}/api/tweets`
   let result
 
-  if (!tweet.value || !tweet.value.trim()) {
+  if (!tweet.value || tweet.value.trim() === '') {
     console.error('Tweet content is empty')
     return
   }
@@ -114,7 +114,16 @@ async function submitData(withFile = false) {
 
   try {
     if (withFile && uploadedFile.value) {
-      result = await postTweetStore.tryUpload(url, tweet.value, uploadedFile.value)
+      const formData = new FormData()
+      formData.append('content', tweet.value)
+      formData.append('file', uploadedFile.value)
+
+      // console.log('FormData contents:')
+      // for (let [key, value] of formData.entries()) {
+      //   console.log(key, value)
+      // }
+
+      result = await postTweetStore.tryUpload(url, formData)
     } else {
       result = await postTweetStore.tryPosting(url, tweet.value)
     }
