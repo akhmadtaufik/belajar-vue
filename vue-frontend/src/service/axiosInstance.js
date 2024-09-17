@@ -2,7 +2,7 @@ import axios from 'axios'
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_FLASK_URL,
-  timeout: 1000
+  timeout: 5000 // Increased timeout to 5 seconds
 })
 
 // Request interceptor to add the access token to outgoing requests
@@ -26,8 +26,8 @@ axiosInstance.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config
-    // Check if the response status is 401 (Unauthorized) and it's not a token refresh request
-    if (error.response.status === 401 && !originalRequest._retry) {
+    // Check if the error has a response and the status is 401 (Unauthorized)
+    if (error.response && error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
       try {
         const refreshToken = localStorage.getItem('refresh_token')
