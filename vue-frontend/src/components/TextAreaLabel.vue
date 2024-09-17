@@ -5,11 +5,15 @@
     :rows="rows"
     :value="modelValue"
     class="border-2 rounded-md border-green-400"
-    @input="$emit('update:modelValue')"
+    @input="updateValue($event.target.value)"
   ></textarea>
 </template>
 
 <script setup>
 defineProps(['label', 'id', 'modelValue', 'rows'])
-defineEmits(['update:modelValue'])
+const emit = defineEmits(['update:modelValue'])
+
+function updateValue(value) {
+  emit('update:modelValue', value)
+}
 </script>

@@ -1,4 +1,3 @@
-<!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div class="bg-white rounded-lg shadow-lg mb-10 mt-5 hover:scale-100">
     <!-- Card Body -->
@@ -6,6 +5,7 @@
       <p class="text-gray-400 font-bold text-2xl">
         {{ tweet }}
       </p>
+      <img v-if="image" :src="image" alt="Tweet image" class="mt-2 max-w-full h-auto" />
     </div>
 
     <div>
@@ -21,5 +21,5 @@
 <script setup>
 import { defineProps } from 'vue'
 
-defineProps(['user', 'tweet'])
+defineProps(['user', 'tweet', 'image'])
 </script>
