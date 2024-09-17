@@ -12,48 +12,51 @@ export const usePostTweet = defineStore('postTweet', () => {
     loading.value = true
     error.value = null
     try {
-      // console.log('Posting tweet:', { content })
-      if (!content || content.trim() === '') {
+      if (!content || typeof content !== 'string' || content.trim() === '') {
         throw new Error('Tweet content cannot be empty')
       }
-      const response = await axiosInstance.post(url, { content })
-      // console.log('Response:', response)
+      const response = await axiosInstance.post(
+        url,
+        { content },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      )
       data.value = response.data.data
-      success.value = response.data.success
+      success.value = true
       loading.value = false
       return { success: true, data: response.data }
     } catch (err) {
-      console.error('Error details:', err.response?.data || err.message) // More detailed error logging
-      error.value = err.response?.data?.error || err.message
-      console.error('Error posting tweet:', error.value)
+      console.error('Error posting tweet:', err)
+      error.value = err.message || 'An error occurred while posting the tweet'
       loading.value = false
       return { success: false, error: error.value }
     }
   }
 
-  const tryUpload = async (url, content, file) => {
+  const tryUpload = async (url, formData) => {
     loading.value = true
     error.value = null
     try {
-      const formData = new FormData()
-      formData.append('content', content)
-      if (file) {
-        formData.append('file', file)
-      }
+      console.log('Uploading tweet with file:', formData)
       const response = await axiosInstance.post(url, formData, {
         headers: {
           'Content-Type': 'multipart/form-data'
         }
       })
+      // console.log('Upload response:', response)
       data.value = response.data.data
-      success.value = response.data.success
+      success.value = true
       loading.value = false
       return { success: true, data: response.data }
     } catch (err) {
-      error.value = err
       console.error('Error uploading tweet with file:', err)
+      console.error('Error response:', err.response)
+      error.value = err.message || 'An error occurred while uploading the tweet'
       loading.value = false
-      return { success: false, error: err.message }
+      return { success: false, error: error.value }
     }
   }
 
