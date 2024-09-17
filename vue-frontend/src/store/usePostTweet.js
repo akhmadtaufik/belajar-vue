@@ -12,22 +12,22 @@ export const usePostTweet = defineStore('postTweet', () => {
     loading.value = true
     error.value = null
     try {
-      console.log('Posting tweet:', { content }) // Debug log
+      // console.log('Posting tweet:', { content })
       if (!content || content.trim() === '') {
         throw new Error('Tweet content cannot be empty')
       }
       const response = await axiosInstance.post(url, { content })
-      console.log('Response:', response) // Debug log
+      // console.log('Response:', response)
       data.value = response.data.data
       success.value = response.data.success
       loading.value = false
       return { success: true, data: response.data }
     } catch (err) {
-      console.error('Error details:', err.response?.data) // More detailed error logging
-      error.value = err
-      console.error('Error posting tweet:', err)
+      console.error('Error details:', err.response?.data || err.message) // More detailed error logging
+      error.value = err.response?.data?.error || err.message
+      console.error('Error posting tweet:', error.value)
       loading.value = false
-      return { success: false, error: err.message }
+      return { success: false, error: error.value }
     }
   }
 
